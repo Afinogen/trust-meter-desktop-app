@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!--    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
+    <!--    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">-->
+    <title>Trust meter</title>
+    <link rel="stylesheet" href="./contents/bootstrap/4.6.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./contents/fontawesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="./contents/fontawesome/fonts/fontawesome-webfont.svg"/>
+    <link rel="stylesheet" href="./contents/css/main.css"/>
+
+</head>
+<body class="">
+<div id="connectWindow" class="text-center js-window">
+    <form style="margin-top: 20%">
+        <div class="form-row align-items-center">
+            <div class="form-group col-3"></div>
+            <div class="form-group col-3">
+                <i class="fa fa-plug js-usb-plug" aria-hidden="true"></i>
+                <label for="ports">Порт для подключения</label>
+                <select class="form-control" name="port" id="ports"></select>
+            </div>
+            <div class="form-group col-1">
+                <span>Или</span>
+                <div style="margin-top: 46px"></div>
+            </div>
+            <div class="form-group col-3">
+                <i class="fa fa-wifi js-ip-correct" aria-hidden="true"></i>
+                <label for="connectIp">IP</label>
+                <input type="text" class="form-control" name="ip" id="connectIp" value=""
+                       placeholder="IP адрес для подключения">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-5"></div>
+            <div class="col-3">
+                <div id="error"></div>
+                <button id="connectPort" class="btn btn-lg btn-primary btn-block disabled" type="button">
+                    Подключиться
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div id="loadWindow" style="display: none" class="js-window">
+    <div class="row" style="padding-bottom: 10px;">
+        <div class="col-12 center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div style="padding-top: 5px">
+                <button class="btn btn-primary js-close-port" type="button">
+                    Отключиться
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="controlWindow" style="display: none" class="js-window">
+    <div class="row" style="padding-bottom: 10px;">
+        <div class="col-12">
+            <div class="d-inline col-3">
+                <span>Приложение: 0.0.1</span>
+            </div>
+            <div class="d-inline col-3">
+                <span>Прошивка: </span><span id="firmwareVersion"></span>
+            </div>
+            <div class="d-inline col-3">
+                <i class="fa fa-wifi js-device-wifi" aria-hidden="true"></i>
+                <span>IP: </span><span id="deviceIp"></span>
+            </div>
+            <div class="float-right d-inline col-3">
+                <button class="btn btn-primary js-close-port" type="button">
+                    Отключиться
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-4" style="max-width: 300px">
+            <div class="list-group" id="list-tab" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list"
+                   href="#list-home" role="tab" aria-controls="home">Измерение</a>
+                <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list"
+                   href="#list-settings" role="tab" aria-controls="settings">Настройки</a>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+                    <div class="col-12">
+                        <div class="d-inline col-1">
+                            <button id="startMeasure" class="btn btn-danger" type="button" value="0">Старт</button>
+                        </div>
+                        <div class="d-inline col-9 float-right">
+                            <label for="motorControl">Управление мотором (<span id="throttlePercent">0</span>%)</label>
+                            <input type="range" class="form-control-range" id="motorControl" value="0">
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                        <th>Средняя</th>
+                        <th>Максимальная</th>
+                        <th class="js-show-rpm">Обороты</th>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td id="measureAvg">0</td>
+                            <td id="measureMax">0</td>
+                            <td id="measureRpm" class="js-show-rpm">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <canvas id="chartPropThrust"></canvas>
+                    </div>
+                    <div>
+                        <canvas id="chartMotorRpm" class="js-show-rpm"></canvas>
+                    </div>
+
+                    <a id="download"
+                       download="TrustMeterChart.jpg"
+                       href=""
+                       class="btn btn-primary float-right bg-flat-color-1"
+                       title="Descargar Gráfico">
+
+                        <!-- Download Icon -->
+                        <i class="fa fa-download"></i>
+                    </a>
+                </div>
+                <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
+                    <div id="settingsLoader" class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div id="settingsPanel" style="display: none">
+                        <h3>Измерения</h3>
+                        <div class="form-group mb-3">
+                            <button id="startCalibrate" type="button" class="btn btn-primary">Запустить калибровку
+                            </button>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="measureCorrection">Коррекция измерений</label>
+                            <input type="number" id="measureCorrection" class="form-control" placeholder="Коррекция">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="measureTimeout">Таймаут измерений в ms</label>
+                            <input type="number" id="measureTimeout" class="form-control" disabled value="500"
+                                   placeholder="Таймаут измерений в ms">
+                        </div>
+                        <h3>Wi-Fi</h3>
+                        <div class="form-group mb-3">
+                            <label for="wifiName">Название сети</label>
+                            <input type="text" id="wifiName" class="form-control" placeholder="Название сети">
+                            <label for="wifiPassword">Пароль сети</label>
+                            <input type="text" id="wifiPassword" class="form-control" placeholder="Пароль сети">
+                        </div>
+                        <h3>График</h3>
+                        <div class="form-group mb-3">
+                            <label for="countChartPoints">Количество отображаемых точек</label>
+                            <input type="number" id="countChartPoints" class="form-control" value="20"
+                                   placeholder="Количество отображаемых точек">
+                        </div>
+                        <h3>ESC</h3>
+                        <div class="form-group mb-3">
+                            <label for="minThrottle">Минимальный газ</label>
+                            <input type="number" id="minThrottle" class="form-control" value="1001"
+                                   placeholder="1000">
+                            <label for="maxThrottle">Максимальный газ</label>
+                            <input type="number" id="maxThrottle" class="form-control" value="2001"
+                                   placeholder="2000">
+                            <div class="form-check">
+                                <input type="checkbox" id="enableRpm" class="form-check-input">
+                                <label class="form-check-label" for="enableRpm">Получение RPM</label>
+                            </div>
+                        </div>
+                        <button type="button" id="saveSettings" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="calibrateWindow" style="display: none" class="js-window">
+    <div class="row" style="padding-bottom: 10px;">
+        <div class="col-12">
+            <div class="col-6 d-inline">
+                <h2 class="d-inline">Калибровка датчика веса</h2>
+            </div>
+            <div class="col-3 d-inline float-right">
+                <button id="calibrateBack" class="btn btn-primary">Назад</button>
+            </div>
+        </div>
+        <div class="col-12" style="padding-top: 10px">
+            <div>
+                <p>Возьмите груз с заранее известным весом (50-200 грамм), либо взвесьте его на точных весах. От
+                    точности калибровки будут зависеть показания датчика</p>
+                <p>Для калибровки расположите датчик веса горизонтально, напрвлением измерения вниз (без груза!!!).</p>
+            </div>
+            <div class="col-6 js-calibrate-step-1">
+                <button id="calibrate-step-2" class="btn btn-primary">Далее</button>
+            </div>
+            <div class="col-6 js-calibrate-step-2" style="display: none">
+                <div class="form-group">
+                    <label for="controlWeight">Контрольный вес, г</label>
+                    <input type="number" id="controlWeight" name="controlWeight" value="" class="form-control">
+                    <div class="invalid-feedback">
+                        Значение должно быть больше 0.
+                    </div>
+                </div>
+                <button id="calibrate-step-3" class="btn btn-primary">Далее</button>
+            </div>
+            <div class="col-6 js-calibrate-step-3" style="display: none">
+                <p>Установите груз на датчик, так чтобы его центр соотвествовал оси двигателя</p>
+                <button id="calibrate-step-4" class="btn btn-primary">Далее</button>
+            </div>
+            <div class="col-6 js-calibrate-step-4" style="display: none">
+                <p>Обрабатываем данные...</p>
+            </div>
+            <div class="col-6 js-calibrate-step-5" style="display: none">
+                <p>Калибровочный фактор: <span id="calibrateFactor"></span></p>
+                <p>Вес груза: <span id="measureControlWeight"></span> г.</p>
+                <div class="form-group">
+                    <p>Верно?</p>
+                    <button class="btn btn-success" id="calibrateSuccess">Да</button>
+                    <button id="calibrateIncorrect" class="btn btn-warning">Нет</button>
+                </div>
+            </div>
+            <div class="col-6 js-calibrate-step-6" style="display: none">
+                <div class="js-additional-measure-1">
+                    <p>Хотите проверить на другом грузе?</p>
+                    <button class="btn btn-success" id="additionalMeasure">Да</button>
+                    <button id="calibrateFinish" class="btn btn-warning">Нет</button>
+                </div>
+                <div class="js-additional-measure-2" style="display: none">
+                    <p>Положите другой груз на датчик</p>
+                    <button class="btn btn-primary" id="startAdditionalMeasure">Готово!</button>
+                </div>
+                <div class="js-additional-measure-3" style="display: none">
+                    <p>Вес груза: <span class="js-measure-weight"></span> г.</p>
+                    <button class="btn btn-primary" id="additionalMeasureToo">Еще!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- You can also require other files to run in this process -->
+<script src="./renderer.js"></script>
+<script>window.$ = window.jQuery = require('jquery');</script>
+<script>require('bootstrap');</script>
+</body>
+</html>
