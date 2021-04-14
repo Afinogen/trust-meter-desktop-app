@@ -24,8 +24,8 @@ function createWindow () {
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
-  // mainWindow.setMenu(null);
+  // mainWindow.webContents.openDevTools()
+  mainWindow.setMenu(null);
 }
 
 // This method will be called when Electron has finished

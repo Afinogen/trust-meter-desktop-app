@@ -7,9 +7,18 @@
     "start": "electron-forge start",
     "install": "electron-rebuild",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "pack": "electron-builder --dir",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux -p always",
+    "dist:osx": "electron-builder --mac -p always",
+    "release": "electron-builder",
+    "dist:snap": "electron-builder --linux snap",
+    "postinstall": "install-app-deps"
   },
   "repository": "https://github.com/Afinogen/trust-meter-desktop-app",
+  "homepage": "https://github.com/Afinogen/trust-meter-desktop-app",
   "keywords": [],
   "author": "Afinogen",
   "license": "CC0-1.0",
@@ -19,8 +28,10 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
+    "@electron-forge/publisher-github": "^6.0.0-beta.54",
     "electron": "^12.0.2",
-    "electron-rebuild": "^2.3.5"
+    "electron-rebuild": "^2.3.5",
+    "electron-builder": "^22.10.5"
   },
   "dependencies": {
     "apexcharts": "^3.26.0",
@@ -38,6 +49,103 @@
     "require": "^2.4.20",
     "serialport": "^9.0.7",
     "tableify": "^1.1.0"
+  },
+  "build": {
+    "appId": "trust-meter",
+    "productName": "trust-meter",
+    "linux": {
+      "category": "Utils",
+      "packageCategory": "utils",
+      "maintainer": "Rhythm Sharma",
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage"
+      ],
+      "synopsis": "trust-meter"
+    },
+    "deb": {
+      "depends": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3"
+      ]
+    },
+    "rpm": {
+      "depends": [
+        "GConf2",
+        "libnotify",
+        "nss",
+        "libappindicator",
+        "libXtst"
+      ]
+    },
+    "snap": {
+      "synopsis": "trust-meter",
+      "publish": [
+        {
+          "package": "trust-meter",
+          "repo": "trust-meter-desktop-app",
+          "owner": "afinogen",
+          "provider": "github"
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "identity": null,
+      "category": "public.app-category.utilities"
+    },
+    "dmg": {
+      "background": "build/appdmg.png",
+      "icon": "build/icon.icns",
+      "iconSize": 100,
+      "window": {
+        "width": 544,
+        "height": 408
+      },
+      "contents": [
+        {
+          "x": 145,
+          "y": 257
+        },
+        {
+          "x": 400,
+          "y": 255,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis-web",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "msi",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    }
   },
   "config": {
     "forge": {
@@ -62,6 +170,16 @@
         {
           "name": "@electron-forge/maker-rpm",
           "config": {}
+        }
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "afinogen"
+            }
+          }
         }
       ]
     }
