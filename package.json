@@ -123,6 +123,7 @@
       ]
     },
     "win": {
+      "icon": "contents/icon.ico",
       "target": [
         {
           "target": "nsis-web",
