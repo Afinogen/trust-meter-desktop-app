@@ -83,17 +83,6 @@
         "libXtst"
       ]
     },
-    "snap": {
-      "synopsis": "trust-meter",
-      "publish": [
-        {
-          "package": "trust-meter",
-          "repo": "trust-meter-desktop-app",
-          "owner": "afinogen",
-          "provider": "github"
-        }
-      ]
-    },
     "mac": {
       "target": [
         "dmg"
@@ -128,15 +117,13 @@
         {
           "target": "nsis-web",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         },
         {
           "target": "msi",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         }
       ]
