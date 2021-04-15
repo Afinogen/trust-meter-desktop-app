@@ -56,7 +56,7 @@
     "linux": {
       "category": "Utils",
       "packageCategory": "utils",
-      "maintainer": "Rhythm Sharma",
+      "maintainer": "Afinogen",
       "target": [
         "deb",
         "rpm",
@@ -138,8 +138,7 @@
             "ia32"
           ]
         }
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "nsis": {
       "allowToChangeInstallationDirectory": true,
