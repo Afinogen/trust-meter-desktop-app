@@ -1,6 +1,6 @@
 {
   "name": "trust-meter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Trust meter",
   "main": "main.js",
   "scripts": {
