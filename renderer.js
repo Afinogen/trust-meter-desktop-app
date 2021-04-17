@@ -19,6 +19,7 @@ let measure = {
     'count': 0,
     'sum': 0,
     'max': 0,
+    'current': 0
 };
 let pingMkTimer;
 let lastResponseMKTime = 0;
@@ -163,7 +164,8 @@ function addMeasure(data) {
     if (measure.max < value) {
         measure.max = value;
     }
-    updateTimeLineChart(value, parseInt(data[2]), parseInt(data[3]));
+    measure.current = data[4];
+    updateTimeLineChart(value, parseInt(data[2]), parseInt(data[3]), parseFloat(data[4]));
     updateMeasureTable();
 }
 
@@ -174,7 +176,8 @@ function mkConfirmStopMeasure(data) {
 
 function updateMeasureTable() {
     $('#measureAvg').text(Number(measure.sum / measure.count).toFixed(3));
-    $('#measureMax').text(Number(measure.max).toFixed(3))
+    $('#measureMax').text(Number(measure.max).toFixed(3));
+    $('#measureCurrent').text(Number(measure.current).toFixed(2));
 }
 
 function connectWindowHide() {
@@ -265,7 +268,8 @@ $('#startMeasure').on('click', function () {
                 {id: 'time', title: 'TIME'},
                 {id: 'measure', title: 'MEASURE'},
                 {id: 'throttle', title: 'THROTTLE'},
-                {id: 'rpm', title: 'RPM'}
+                {id: 'rpm', title: 'RPM'},
+                {id: 'current', title: 'CURRENT'}
             ]
         });
         port.write('$3\n');
@@ -339,7 +343,19 @@ var chartPropThrust = new Chart(ctx, {
                     'rgb(57,14,210)',
                 ],
                 borderWidth: 1
-            }]
+            },
+            {
+                label: 'Ток, А',
+                data: [],
+                backgroundColor: [
+                    'rgb(210,14,37)',
+                ],
+                borderColor: [
+                    'rgb(210,14,53)',
+                ],
+                borderWidth: 1
+            }
+        ]
     },
     options: {
         responsive: true,
@@ -410,10 +426,10 @@ document.getElementById("download").addEventListener('click', function () {
     a.href = url_base64jp;
 });
 
-async function updateTimeLineChart(value, throttle, rpm) {
+async function updateTimeLineChart(value, throttle, rpm, current) {
     let date = new Date();
     let time = date.toLocaleTimeString();
-    addData(chartPropThrust, time, value, throttle);
+    addData(chartPropThrust, time, value, throttle, current);
     addDataRpm(chartMotorRpm, time, rpm);
     removeData(chartPropThrust);
     removeDataRpm(chartMotorRpm);
@@ -422,19 +438,22 @@ async function updateTimeLineChart(value, throttle, rpm) {
             'time': time,
             'measure': value,
             'throttle': throttle,
-            'rpm': rpm
+            'rpm': rpm,
+            'current': current
         }])
     }
 }
 
-function addData(chart, label, data, throttle) {
+function addData(chart, label, data, throttle, current) {
     chart.data.labels.push(label);
     chart.data.datasets[0].data.push(data);
     chart.data.datasets[1].data.push(throttle);
+    chart.data.datasets[2].data.push(current);
     chart.update();
 }
 
 function addDataRpm(chart, label, data) {
+    $('#measureRpm').text(data);
     chart.data.labels.push(label);
     chart.data.datasets[0].data.push(data);
     chart.update();
@@ -445,9 +464,11 @@ function removeData(chart) {
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
         chart.data.datasets[1].data.shift();
+        chart.data.datasets[2].data.shift();
         chart.update();
     }
 }
+
 function removeDataRpm(chart) {
     if (chart.data.datasets[0].data.length > store.get('countChartPoints')) {
         chart.data.labels.shift();
