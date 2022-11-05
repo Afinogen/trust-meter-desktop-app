@@ -4,13 +4,13 @@
 // `nodeIntegration` is turned off. Use `preload.js` to
 // selectively enable features needed in the rendering
 // process.
-const serialport = require('serialport');
 const Readline = require('@serialport/parser-readline');
 // const Delimiter = require('@serialport/parser-delimiter');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const net = require('net');
 const isIp = require('is-ip');
 const Store = require('electron-store');
+const {ipcRenderer} = window.require('electron');
 
 let csvWriter;
 let $ = require('jquery');
@@ -38,22 +38,16 @@ $(document).ready(function () {
     }
 });
 
-async function listSerialPorts() {
-    await serialport.list().then((ports, err) => {
-        if (err) {
-            document.getElementById('error').textContent = err.message
-            return
-        } else {
-            document.getElementById('error').textContent = ''
-        }
-
+// Set a timeout that will check for new serialPorts every 2 seconds.
+// This timeout reschedules itself.
+ipcRenderer.on('getUsbPorts', (_event, _args) => {
         $('#ports').empty();
         $('.js-usb-plug').removeClass('text-success');
-        if (ports.length === 0) {
+        if (_args.length === 0) {
             document.getElementById('error').textContent = 'No ports discovered'
             $('#connectPort').addClass('disabled')
         } else {
-            ports.forEach(function (port, index, object) {
+            _args.forEach(function (port, index, object) {
                 if (typeof (port.pnpId) == 'undefined') {
                     object.splice(index, 1);
                     return;
@@ -66,13 +60,9 @@ async function listSerialPorts() {
                 $('.js-usb-plug').addClass('text-success');
             });
         }
-    })
-}
-
-// Set a timeout that will check for new serialPorts every 2 seconds.
-// This timeout reschedules itself.
+})
 function listPorts() {
-    listSerialPorts();
+    ipcRenderer.send('getUsbPorts')
     setTimeout(listPorts, 2000);
 }
 
