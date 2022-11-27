@@ -4,7 +4,8 @@
 // `nodeIntegration` is turned off. Use `preload.js` to
 // selectively enable features needed in the rendering
 // process.
-const Readline = require('@serialport/parser-readline');
+const {SerialPort} = require('serialport');
+const {ReadlineParser} = require('@serialport/parser-readline');
 // const Delimiter = require('@serialport/parser-delimiter');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const net = require('net');
@@ -192,9 +193,11 @@ function pingMK() {
 
 function connectSerial() {
     connectWindowHide();
-    port = new serialport($('#ports').val(), {
+
+    port = new SerialPort({
         baudRate: 115200,
         autoOpen: false,
+        path: $('#ports').val()
     })
 
     port.open(function (err) {
@@ -218,7 +221,7 @@ function connectSerial() {
 //     port.on('readable', readFromPort)
 
 // Pipe the data into another stream (like a parser or standard out)
-    const lineStream = port.pipe(new Readline({delimiter: '\r\n'}));
+    const lineStream = port.pipe(new ReadlineParser({delimiter: '\r\n'}));
     lineStream.on('data', readFromPort);
 }
 

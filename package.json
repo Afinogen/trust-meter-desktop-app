@@ -47,7 +47,7 @@
     "navigator.serial": "^0.0.1",
     "popper.js": "^1.14.4",
     "require": "^2.4.20",
-    "serialport": "^9.0.7",
+    "serialport": "^10.0.0",
     "tableify": "^1.1.0"
   },
   "build": {

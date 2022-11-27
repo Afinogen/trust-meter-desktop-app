@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
-const serialPort = require('serialport');
+const {SerialPort} = require('serialport');
 
 const Store = require('electron-store');
 Store.initRenderer();
@@ -54,7 +54,7 @@ app.on('window-all-closed', function () {
 // code. You can also put them in separate files and require them here.
 ipcMain.on('getUsbPorts', (_event, _arg) => {
   let ports = [];
-  serialPort.list().then(function(_ports){
+  SerialPort.list().then(function(_ports){
     for (const key in _ports) {
       const port = _ports[key];
       if (port.vendorId) {
