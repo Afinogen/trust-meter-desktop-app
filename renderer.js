@@ -254,8 +254,22 @@ $('#startMeasure').on('click', function () {
             'sum': 0,
             'max': 0,
         };
+
+        const optionsDate = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            timezone: 'UTC',
+        };
+        const optionsTime = {
+            timezone: 'UTC',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric'
+        };
+
         csvWriter = createCsvWriter({
-            path: 'logs/' + (new Date()).toLocaleString() + '.csv',
+            path: 'logs/' + (new Date()).toLocaleString('ru', optionsDate) + ' ' + (new Date()).toLocaleString('ru', optionsTime) + '.csv',
             fieldDelimiter: ';',
             header: [
                 {id: 'time', title: 'TIME'},
