@@ -11,10 +11,9 @@
     "publish": "electron-forge publish",
     "pack": "electron-builder --dir",
     "dist:win": "electron-builder --win",
-    "dist:linux": "electron-builder --linux -p always",
+    "dist:linux": "electron-builder --linux AppImage",
     "dist:osx": "electron-builder --mac -p always",
     "release": "electron-builder",
-    "dist:snap": "electron-builder --linux snap",
     "postinstall": "install-app-deps"
   },
   "repository": "https://github.com/Afinogen/trust-meter-desktop-app",
@@ -164,8 +163,11 @@
           "name": "@electron-forge/publisher-github",
           "config": {
             "repository": {
-              "owner": "afinogen"
-            }
+              "owner": "Afinogen",
+              "name": "trust-meter-desktop-app"
+            },
+            "prerelease": false,
+            "draft": true
           }
         }
       ]
