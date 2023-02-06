@@ -269,7 +269,7 @@ $('#startMeasure').on('click', function () {
         };
 
         csvWriter = createCsvWriter({
-            path: 'logs/' + (new Date()).toLocaleString('ru', optionsDate) + ' ' + (new Date()).toLocaleString('ru', optionsTime) + '.csv',
+            path: './logs/' + (new Date()).toLocaleString('ru', optionsDate) + ' ' + (new Date()).toLocaleString('ru', optionsTime) + '.csv',
             fieldDelimiter: ';',
             header: [
                 {id: 'time', title: 'TIME'},
